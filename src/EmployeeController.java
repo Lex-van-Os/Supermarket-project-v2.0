@@ -85,29 +85,53 @@ public class EmployeeController {
         model.calculateGrossSalary(hours, age);
     }
 
-    public void showEmployeeActions() {
-        view.showActions();
+    public void showEmployeeActions(Employee employee) {
+        view.showActions(employee);
     }
 
     public int getEmployeeActionInput() {
         return model.getAction();
     }
 
-    public void chooseEmployeeAction() {
+    public void chooseEmployeeAction(Employee employee) {
         Scanner employeeInsertScanner = new Scanner(System.in);
         int employeeInsertInput = employeeInsertScanner.nextInt();
+        int manager_id = model.getManager_id();
 
-        if (employeeInsertInput == 1) {
-            model.updateMyEmployeeValue();
+        switch (employeeInsertInput) {
+            case 1:
+                model.updateMyEmployeeValue(employee);
+                break;
+            case 2:
+                model.deleteEmployee(false, employee);
+                break;
+            case 3:
+                Product.createInstances("buy", manager_id, employee, 2);
+                break;
+            case 4:
+                if (employee.privileges != 0) {
+                    Product.createInstances("update", manager_id, employee, 1);
+                }
+                break;
+            case 5:
+                if (employee.privileges != 0) {
+                    Product.createInstances("update", manager_id, employee, 3);
+                }
+                break;
+            case 6:
+                if (employee.privileges == 2) {
+                    model.deleteEmployee(true, employee);
+                }
+                break;
         }
     }
 
-    public void getEmployee(int userInstance, EmployeeController controller) {
-        model.getEmployee(userInstance, controller, model);
+    public Employee getEmployee(int userInstance, EmployeeController controller) {
+        return model.getEmployee(userInstance);
     }
 
-    public void deleteEmployee() {
-        model.deleteEmployee();
+    public void deleteEmployee(boolean managerDelete, Employee employee) {
+        model.deleteEmployee(managerDelete, employee);
     }
 
     public void updateEmployee() {
@@ -124,5 +148,9 @@ public class EmployeeController {
 
     public void showEmployeeUpdateAction() {
         view.viewEmployeeUpdateAction(model.getColumn_name());
+    }
+
+    public void setEmployeePrivileges() {
+        model.setPrivileges(model.getPosition_id());
     }
 }

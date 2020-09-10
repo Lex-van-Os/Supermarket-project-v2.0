@@ -29,7 +29,9 @@ public class ManagerView {
         System.out.println("3. Update employee information");
         System.out.println("4. Update my supermarket information");
         System.out.println("5. Update my own information");
-        System.out.println("6. Order or return product(s)");
+        System.out.println("6. Order product(s)");
+        System.out.println("7. Return product(s)");
+        System.out.println("8. Buy a product");
     }
 
     public void viewManagerInsertAction(String first_name) {

@@ -16,6 +16,7 @@ public class Employee {
     double monthly_hours;
     int supermarket_id;
     String column_name;
+    int privileges;
 
     public void setEmployee_id(int employee_id) {
         this.employee_id = employee_id;
@@ -81,6 +82,10 @@ public class Employee {
         this.position_id = position_id;
     }
 
+    public int getPosition_id() {
+        return position_id;
+    }
+
     public void setMonthly_hours(double monthly_hours) {
         this.monthly_hours = monthly_hours;
     }
@@ -105,6 +110,25 @@ public class Employee {
         double salary_per_hour = age / 4;
         double gross_salary = salary_per_hour * hours;
         this.gross_salary = gross_salary;
+    }
+
+    public int getManager_id() {
+        int manager_id = 0;
+        try {
+            DBConnect connectionTester = new DBConnect();
+            connectionTester.testConnection();
+            Statement statement = connectionTester.connection.createStatement();
+            String sql = "select supermarket.manager_idmanager from supermarket join employee on supermarket.idsupermarket = employee.supermarket_idsupermarket";
+
+            ResultSet result = statement.executeQuery(sql);
+            while (result.next()) {
+                manager_id = result.getInt("manager_idmanager");
+            }
+
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+        }
+        return manager_id;
     }
 
     static int chooseDepartment() {
@@ -204,7 +228,7 @@ public class Employee {
             connectionTester.testConnection();
             System.out.println("Preparing to create an employee");
 
-            String sql = " insert into employee (first_name, last_name, age, gender, budget, gross_salary, net_salary, parrtime, department_iddepartment, uren_per_maand, supermarket_idsupermarket, position_idposition)" + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = " insert into employee (first_name, last_name, age, gender, budget, gross_salary, net_salary, parrtime, department_iddepartment, uren_per_maand, supermarket_idsupermarket, position_idposition, privileges)" + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement preparedStmt = connectionTester.connection.prepareStatement(sql);
             preparedStmt.setString(1, employee.first_name);
@@ -219,6 +243,7 @@ public class Employee {
             preparedStmt.setDouble(10, employee.monthly_hours);
             preparedStmt.setInt(11, employee.supermarket_id);
             preparedStmt.setInt(12, employee.position_id);
+            preparedStmt.setInt(13, employee.privileges);
 
             preparedStmt.execute();
             connectionTester.connection.close();
@@ -228,7 +253,7 @@ public class Employee {
         }
     }
 
-    public void updateMyEmployeeValue() {
+    public void updateMyEmployeeValue(Employee employee) {
         try {
             System.out.println("The updatemyvalue function");
             DBConnect connectionTester = new DBConnect();
@@ -239,7 +264,7 @@ public class Employee {
             String input_column = inputGetter.nextLine();
             input_column = input_column.replaceAll("^\"|\"$", "");
 
-            String sql = "select " + input_column + " from employee where idemployee = " + employee_id;
+            String sql = "select " + input_column + " from employee where idemployee = " + employee.employee_id;
 
             Statement stmt = connectionTester.connection.createStatement();
 
@@ -249,7 +274,7 @@ public class Employee {
 
             String outputName = resultSetMetaData.getColumnName(1);
             String outputType = resultSetMetaData.getColumnTypeName(1);
-            updateEmployeeValue(outputName, employee_id, outputType);
+            updateEmployeeValue(outputName, employee.employee_id, outputType);
 
         } catch (SQLException err) {
             System.out.println(err.getMessage());
@@ -307,7 +332,6 @@ public class Employee {
                     String input_value = inputGetter.nextLine();
                     prpStmt.setString(1, input_value);
                     System.out.println("You're about to update " + outputValue + " to " + input_value + ". Are you sure you wish to proceed?");
-                    break;
                 }
                 case "INT": {
                     String input_value = inputGetter.nextLine();
@@ -319,7 +343,6 @@ public class Employee {
                     double input_value = inputGetter.nextDouble();
                     prpStmt.setDouble(1, input_value);
                     System.out.println("You're about to update " + outputValue + " to " + input_value + ". Are you sure you wish to proceed?");
-                    break;
                 }
             }
 
@@ -329,17 +352,18 @@ public class Employee {
             if (inputConfirmation.charAt(0) == 'y') {
                 prpStmt.execute();
                 setColumn_name(outputValue);
+                System.out.println("Column " + outputValue + " updated successfully!");
                 connectionTester.connection.close();
             } else {
                 System.out.println("Action cancelled");
             }
-
         } catch (SQLException err) {
             System.out.println(err.getMessage());
         }
     }
 
-    public void getEmployee(int userInstance, EmployeeController controller, Employee employee) {
+    public Employee getEmployee(int userInstance) {
+        Employee employee = new Employee();
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -350,19 +374,46 @@ public class Employee {
             ResultSet result = statement.executeQuery(sql);
 
             if (result.next()) {
-                this.employee_id = result.getInt("idemployee");
-                this.first_name = result.getString("first_name");
-                this.last_name = result.getString("last_name");
-                this.age = result.getInt("age");
-                this.gender = result.getString("gender");
-                this.budget = result.getDouble("budget");
-                this.parttime = result.getBoolean("parrtime");
-                this.gross_salary = result.getDouble("gross_salary");
-                this.net_salary = result.getDouble("net_salary");
-                this.department_id = result.getInt("department_iddepartment");
-                this.monthly_hours = result.getInt("uren_per_maand");
-                this.position_id = result.getInt("position_idposition");
-                this.supermarket_id = result.getInt("supermarket_idsupermarket");
+                employee.setEmployee_id(result.getInt("idemployee"));
+                employee.setFirst_name(result.getString("first_name"));
+                employee.setLast_name(result.getString("last_name"));
+                employee.setAge(result.getInt("age"));
+                employee.setGender(result.getString("gender"));
+                employee.setBudget(result.getDouble("budget"));
+                employee.setParttime(result.getBoolean("parrtime"));
+                employee.setGross_salary(result.getDouble("gross_salary"));
+                employee.setNet_salary(result.getDouble("net_salary"));
+                employee.setDepartment_id(result.getInt("department_iddepartment"));
+                employee.setMonthly_hours(result.getDouble("uren_per_maand"));
+                employee.setPosition_id(result.getInt("position_idposition"));
+                employee.setSupermarket_id(result.getInt("supermarket_idsupermarket"));
+                employee.setPrivileges(employee.position_id);
+                System.out.println("Supermarket Manager id in getManager");
+                System.out.println(employee.employee_id);
+            }
+
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+        }
+        return employee;
+    }
+
+    public void setPrivileges(int idposition) {
+        try {
+            DBConnect connectionTester = new DBConnect();
+            connectionTester.testConnection();
+            System.out.println("Preparing to fetch position");
+
+            String sql = "select privileges from position where idposition = ?";
+            PreparedStatement preparedStmt = connectionTester.connection.prepareStatement(sql);
+            preparedStmt.setInt(1, idposition);
+            preparedStmt.execute();
+
+            ResultSet result = preparedStmt.executeQuery();
+
+            if (result.next()) {
+                int privileges = result.getInt("privileges");
+                this.privileges = privileges;
             }
 
         } catch (SQLException err) {
@@ -370,26 +421,40 @@ public class Employee {
         }
     }
 
-    public void deleteEmployee() {
+    public void deleteEmployee(boolean managerDelete, Employee employee) {
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
+            int input_id = 0;
 
             Scanner inputGetter = new Scanner(System.in);
-            System.out.println("please enter the id of the employee you wish to delete");
-            String input_id = inputGetter.nextLine();
-            System.out.println("Are you sure you wish to delete the employee with id: " + input_id + "?");
-            String confirmation = inputGetter.nextLine();
+
+            if (managerDelete) {
+                ColumnGetter employeeGetter = new ColumnGetter();
+                employeeGetter.getColumn("employee", "first_name");
+                System.out.println("please enter the id of the employee you wish to delete");
+                input_id = inputGetter.nextInt();
+                System.out.println("Are you sure you wish to delete the employee with id: " + input_id + "?");
+            } else {
+                System.out.println("Are you sure you wish to resign?");
+            }
+            String confirmation = inputGetter.next();
 
             if (confirmation.charAt(0) == 'y') {
 
                 String sql = "delete from employee where idemployee = ?";
 
                 PreparedStatement preparedStmt = connectionTester.connection.prepareStatement(sql);
-                preparedStmt.setString(1, input_id);
+                if (managerDelete) {
+                    preparedStmt.setInt(1, input_id);
+                } else if (!managerDelete) {
+                    preparedStmt.setInt(1, employee.employee_id);
+                }
                 preparedStmt.execute();
 
-                setEmployee_id(Integer.parseInt(input_id));
+                if (managerDelete) {
+                    setEmployee_id(input_id);
+                }
                 connectionTester.connection.close();
             } else {
                 System.out.println("Action cancelled");
@@ -417,7 +482,8 @@ public class Employee {
             employeeController.createEmployeeDBInstance();
             employeeController.showEmployeeInsertAction();
         } else if (action == "delete") {
-            employeeController.deleteEmployee();
+            Employee employee = new Employee();
+            employeeController.deleteEmployee(true, employee);
             employeeController.showEmployeeDeleteAction();
         } else if (action == "update") {
             employeeController.updateEmployee();

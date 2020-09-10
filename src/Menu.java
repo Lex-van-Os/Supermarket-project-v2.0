@@ -61,8 +61,9 @@ public class Menu {
             ManagerView managerView = new ManagerView();
             ManagerController managerController = new ManagerController(managerModel, managerView);
             if (userInstance > 0) {
+                Manager manager = managerController.getManager(userInstance, managerController);
                 managerController.showManagerActions();
-                managerController.chooseManagerActionType(userInstance);
+                managerController.chooseManagerActionType(userInstance, manager);
             } else {
                 createManager(managerController);
             }
@@ -72,9 +73,9 @@ public class Menu {
             EmployeeView employeeView = new EmployeeView();
             EmployeeController employeeController = new EmployeeController(employeeModel, employeeView);
             if (userInstance > 0) {
-                employeeController.getEmployee(userInstance, employeeController);
-                employeeController.showEmployeeActions();
-                employeeController.chooseEmployeeAction();
+                Employee employee = employeeController.getEmployee(userInstance, employeeController);
+                employeeController.showEmployeeActions(employee);
+                employeeController.chooseEmployeeAction(employee);
             } else {
                 createEmployee(employeeController);
             }
@@ -134,8 +135,12 @@ public class Menu {
             System.out.println("Calculating gross salary");
             controller.calculateEmployeeGrossSalary(controller.getEmployeeMonthly_hours(), controller.getEmployeeAge());
         } else if (!controller.getEmployeeParttime()) {
+            System.out.println("How much would you like to pay your employee a month? (Note: The input is gross salary, net salary will be reduced by income tax)");
             controller.setEmployeeGross_salary(employeeInputGetter.nextDouble());
         }
+        System.out.println("Privileges: ");
+        System.out.println("Calculating privileges");
+        controller.setEmployeePrivileges();
         System.out.println("Net salary: ");
         controller.calculateEmployeeNetSalary();
     }

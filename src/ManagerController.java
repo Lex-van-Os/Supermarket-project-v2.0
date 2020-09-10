@@ -45,66 +45,76 @@ public class ManagerController {
         view.showActions();
     }
 
-    public void chooseManagerActionType(int userInstance) {
+    public void chooseManagerActionType(int userInstance, Manager manager) {
         Scanner managerActionTypeScanner = new Scanner(System.in);
         int managerActionTypeInput = managerActionTypeScanner.nextInt();
 
         switch (managerActionTypeInput) {
             case 1 -> {
                 view.showInsertActions();
-                chooseManagerInsertAction(userInstance);
+                chooseManagerInsertAction(userInstance, manager);
             }
             case 2 -> {
                 view.showDeleteActions();
-                chooseManagerDeleteAction(userInstance);
+                chooseManagerDeleteAction(userInstance, manager);
             }
             case 3 -> {
                 view.showUpdateActions();
-                chooseManagerUpdateAction(userInstance);
+                chooseManagerUpdateAction(userInstance, manager);
             }
         }
     }
 
-    public void chooseManagerInsertAction(int userInstance) {
+    public void chooseManagerInsertAction(int userInstance, Manager manager) {
         Scanner managerInsertScanner = new Scanner(System.in);
         int managerInsertInput = managerInsertScanner.nextInt();
 
         switch (managerInsertInput) {
             case 1:
                 Department.createInstances("insert");
+                break;
             case 2:
                 Position.createInstances("insert");
+                break;
             case 3:
                 Employee.createInstances("insert");
+                break;
             case 4:
-                Product.createInstances("insert", userInstance);
+                Product.createInstances("insert", userInstance, manager, 0);
+                break;
             case 5:
-                model.payoutEmployees();
+                double supermarket_budget = model.getSupermarketInstance(manager);
+                model.getEmployeeInstances(manager, supermarket_budget);
         }
     }
 
-    public void chooseManagerDeleteAction(int userInstance) {
+    public void chooseManagerDeleteAction(int userInstance, Manager manager) {
         Scanner managerDeleteScanner = new Scanner(System.in);
         int managerDeleteInput = managerDeleteScanner.nextInt();
         switch (managerDeleteInput) {
             case 1:
                 Department.createInstances("delete");
+                break;
             case 2:
                 Position.createInstances("delete");
+                break;
             case 3:
                 Employee.createInstances("delete");
+                break;
             case 4:
                 Supermarket.createInstances("delete", model);
+                break;
             case 5:
                 model.deleteManager(model, userInstance);
                 showManagerDeleteAction();
+                break;
             case 6:
-                Product.createInstances("delete", userInstance);
-
+                Product.createInstances("delete", userInstance, manager, 0);
+                break;
         }
     }
 
-    public void chooseManagerUpdateAction(int userInstance) {
+    public void chooseManagerUpdateAction(int userInstance, Manager manager) {
         Scanner managerUpdateScanner = new Scanner(System.in);
         int managerUpdateInput = managerUpdateScanner.nextInt();
         switch (managerUpdateInput) {
@@ -120,8 +130,16 @@ public class ManagerController {
                 model.updateManager(userInstance);
                 showManagerUpdateAction();
             case 6:
-                Product.createInstances("update", userInstance);
+                Product.createInstances("update", userInstance, manager, 1);
+            case 7:
+                Product.createInstances("update", userInstance, manager, 3);
+            case 8:
+                Product.createInstances("buy", userInstance, manager, 2);
         }
+    }
+
+    public Manager getManager(int userInstance, ManagerController controller) {
+        return model.getManager(userInstance);
     }
 
     public void showManagerInsertAction() {

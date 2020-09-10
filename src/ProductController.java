@@ -40,8 +40,8 @@ public class ProductController {
         model.deleteProduct();
     }
 
-    public void updateProduct(ProductController controller, int manager_id) {
-        model.updateProduct(controller, manager_id);
+    public void chooseProductAction(ProductController controller, int manager_id, Object userObject, int orderMethod) {
+        model.chooseAction(controller, manager_id, userObject, orderMethod);
     }
 
     public void showProductCategories() {

@@ -1,6 +1,8 @@
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.mysql.cj.protocol.Resultset;
+
+import javax.swing.plaf.nimbus.State;
+import javax.xml.transform.Result;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,8 +150,8 @@ public class Product {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
 
-            InstanceFinder productInstanceFinder = new InstanceFinder();
-            productInstanceFinder.findInstance("product", "product_name");
+            ColumnGetter productColumnGetter = new ColumnGetter();
+            productColumnGetter.getColumn("product", "product_name");
 
             Scanner inputGetter = new Scanner(System.in);
             System.out.println("Please enter the id of the product you would like to delete");
@@ -176,20 +178,15 @@ public class Product {
         }
     }
 
-    public void updateProduct(ProductController controller, int manager_id) {
+    public void chooseAction(ProductController controller, int manager_id, Object userObject, int orderMethod) {
         HashMap<Integer, Integer> hashOrders = new HashMap<Integer, Integer>();
         Scanner input_id = new Scanner(System.in);
-        Scanner input_action_scanner = new Scanner(System.in);
-        boolean return_products = false;
 
-
-        System.out.println("Please select whether you'd like to order or to return product(s): ");
+        System.out.println("Please select whether you'd like to order, return or to buy product(s): ");
         System.out.println("1. Order products");
-        System.out.println("2. Return products");
-        int input_action = input_action_scanner.nextInt();
-        if (input_action == 2) {
-            return_products = true;
-        }
+        System.out.println("2. Buy products");
+        System.out.println("3. Return products");
+        //1 = order, 2 = buy, 3 = return
 
         System.out.println("Please enter the number of the category you'd like to change the information from:");
         controller.showProductCategories();
@@ -200,51 +197,63 @@ public class Product {
         int method = input_id.nextInt();
         ArrayList<String> filtered_results = getCategoryProducts(category_id, method);
 
-        boolean breakLoop = false;
+        printProducts(filtered_results);
 
-        while (!breakLoop) {
-            for (int i = 0; i < filtered_results.size(); i++) {
-                System.out.println(filtered_results.get(i));
-            }
+        System.out.println("\n");
 
-            System.out.println("\n");
+        boolean breakSwitch = false;
+        while (!breakSwitch) {
+
+            System.out.println("Please select what you'd like to do:");
             controller.showProductOrderActions();
             int action_input = input_id.nextInt();
-
             switch (action_input) {
                 case 1:
-                    System.out.println("Please enter the id of the product you'd like to add or return: ");
+                    printProducts(filtered_results);
+                    System.out.println("Please enter the id of the product you'd like to add, return or buy: ");
                     int product_input = input_id.nextInt();
-                    System.out.println("Please enter the amount you'd like to order or return: ");
+                    System.out.println("Please enter the amount you'd like to order, return or buy: ");
                     int product_input_amount = input_id.nextInt();
                     System.out.println("Product added to cart! ");
                     hashOrders.put(product_input, product_input_amount);
                     break;
                 case 2:
+                    System.out.println("Please enter the category you'd like to view");
                     category_id = input_id.nextInt();
                     filtered_results = getCategoryProducts(category_id, method);
+                    printProducts(filtered_results);
+                    break;
                 case 3:
+                    System.out.println("Please enter how you would like to print your products:");
                     method = input_id.nextInt();
                     filtered_results = getCategoryProducts(category_id, method);
+                    printProducts(filtered_results);
+                    break;
                 case 4:
+                    System.out.println("Please enter the category you'd like to view and how you'd like to print your products: ");
                     category_id = input_id.nextInt();
                     method = input_id.nextInt();
                     filtered_results = getCategoryProducts(category_id, method);
+                    printProducts(filtered_results);
                 case 5:
                     if (hashOrders.isEmpty()) {
-                        if (return_products = true) {
-                            System.out.println("Please add a product to return before proceeding to return it");
-
-                        } else {
+                        if (orderMethod == 1 || orderMethod == 2) {
                             System.out.println("Please add a product to your order before proceeding to check out");
+                        } else if (orderMethod == 3) {
+                            System.out.println("Please add a product to return before proceeding to return it");
                         }
                     } else {
-                        addOrder(hashOrders, manager_id, return_products);
+                        addOrder(hashOrders, manager_id, orderMethod, userObject);
                     }
                 case 6:
-                    breakLoop = true;
-                    break;
+                    breakSwitch = true;
             }
+        }
+    }
+
+    public void printProducts(ArrayList<String> filteredResults) {
+        for (int i = 0; i < filteredResults.size(); i++) {
+            System.out.println(filteredResults.get(i));
         }
     }
 
@@ -294,7 +303,7 @@ public class Product {
         return filtered_results;
     }
 
-    public void addOrder(HashMap<Integer, Integer> orders, int manager_id, boolean return_products) {
+    public void addOrder(HashMap<Integer, Integer> orders, int manager_id, int orderMethod, Object userObject) {
         HashMap<Integer, Product> products = new HashMap<Integer, Product>();
         double order_totalprice = 0;
         double order_price = 0;
@@ -316,9 +325,9 @@ public class Product {
                     int in_stock = result.getInt("in_stock");
                     String amount = result.getString("amount");
                     int ordered_amount = orders.get(product_id);
-                    if (return_products) {
+                    if (orderMethod == 2 || orderMethod == 3) {
                         order_price = result.getDouble("price") * ordered_amount;
-                    } else if (!return_products) {
+                    } else if (orderMethod == 1) {
                         order_price = result.getDouble("price") * ordered_amount - 0.10;
                     }
 
@@ -338,10 +347,10 @@ public class Product {
             System.out.println(err.getMessage());
         }
 
-        reviewOrder(products, order_totalprice, manager_id, return_products);
+        reviewOrder(products, order_totalprice, manager_id, orderMethod, userObject);
     }
 
-    public void reviewOrder(HashMap<Integer, Product> products, double order_totalprice, int manager_id, boolean return_products) {
+    public void reviewOrder(HashMap<Integer, Product> products, double order_totalprice, int manager_id, int orderMethod, Object userObject) {
         System.out.println("Standing order: ");
         for (int product_id : products.keySet()) {
             System.out.println("Product id - product name - ordered amount - order price");
@@ -349,9 +358,9 @@ public class Product {
         }
         System.out.println(order_totalprice);
 
-        if (!return_products) {
+        if (orderMethod == 1 || orderMethod == 2) {
             System.out.println("Would you like to check-out your order?");
-        } else if (return_products) {
+        } else if (orderMethod == 3) {
             System.out.println("Would you like to return the selected products?");
         }
         System.out.println("1. Yes");
@@ -362,39 +371,40 @@ public class Product {
 
         if (checkoutConfirm == 1) {
             System.out.println("Order confirmed! Processing order...");
-            orderCheckOut(order_totalprice, products, manager_id, return_products);
+            orderCheckOut(order_totalprice, products, manager_id, orderMethod, userObject);
         } else if (checkoutConfirm == 2) {
             System.out.println("Action cancelled");
         }
     }
 
-    public void orderCheckOut(double product_totalprice, HashMap<Integer, Product> products, int manager_id, boolean return_products) {
+    public void orderCheckOut(double product_totalprice, HashMap<Integer, Product> products, int manager_id, int orderMethod, Object userObject) {
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
             double new_budget = 0;
 
+            String sqlBuy = "";
             String sqlProduct = "update product set in_stock = ? where idproduct = ?";
             String sqlGetSupermarket = "select budget from supermarket where manager_idmanager = ?";
-            String sqlSupermarket = "update supermarket set budget = ? where manager.idmanger = ?";
+            String sqlSupermarket = "update supermarket set budget = ? where manager_idmanager = ?";
 
             for (int product_id : products.keySet()) {
                 PreparedStatement prpStmtGetSupermarket = connectionTester.connection.prepareStatement(sqlGetSupermarket);
                 prpStmtGetSupermarket.setInt(1, manager_id);
 
                 ResultSet supermarketResult = prpStmtGetSupermarket.executeQuery();
-                while(supermarketResult.next()) {
-                    if (!return_products) {
+                while (supermarketResult.next()) {
+                    if (orderMethod == 1) {
                         new_budget = supermarketResult.getDouble("budget") - product_totalprice;
-                    } else if (return_products) {
+                    } else if (orderMethod == 3 || orderMethod == 2) {
                         new_budget = supermarketResult.getDouble("budget") + product_totalprice;
                     }
                 }
 
                 PreparedStatement prpStmtProduct = connectionTester.connection.prepareStatement(sqlProduct);
-                if (!return_products) {
+                if (orderMethod == 1) {
                     prpStmtProduct.setInt(1, products.get(product_id).in_stock + products.get(product_id).ordered_amount);
-                } else if (return_products) {
+                } else if (orderMethod == 3 || orderMethod == 2) {
                     prpStmtProduct.setInt(1, products.get(product_id).in_stock - products.get(product_id).ordered_amount);
                 }
                 prpStmtProduct.setInt(2, products.get(product_id).product_id);
@@ -404,16 +414,35 @@ public class Product {
 
             PreparedStatement prpStmtSupermarket = connectionTester.connection.prepareStatement(sqlSupermarket);
             prpStmtSupermarket.setDouble(1, new_budget);
-            prpStmtSupermarket.setInt(2,  manager_id);
+            prpStmtSupermarket.setInt(2, manager_id);
             prpStmtSupermarket.execute();
             System.out.println("Supermarket updated successfully!");
+
+            if (orderMethod == 2) {
+                if (userObject instanceof Manager) {
+                    System.out.println(((Manager) userObject).manager_id);
+                    sqlBuy = "update manager set budget = ? where idmanager = ?";
+                    PreparedStatement prpStmtManager = connectionTester.connection.prepareStatement(sqlBuy);
+                    prpStmtManager.setDouble(1, ((Manager) userObject).budget - product_totalprice);
+                    prpStmtManager.setInt(2, ((Manager) userObject).manager_id);
+                    prpStmtManager.execute();
+                } else if (userObject instanceof Employee) {
+                    System.out.println(((Employee) userObject).employee_id);
+                    sqlBuy = "update employee set budget = ? where idemployee = ?";
+                    PreparedStatement prpStmtEmployee = connectionTester.connection.prepareStatement(sqlBuy);
+                    prpStmtEmployee.setDouble(1, ((Employee) userObject).budget - product_totalprice);
+                    prpStmtEmployee.setInt(2, ((Employee) userObject).employee_id);
+                    prpStmtEmployee.execute();
+                }
+
+            }
             System.out.println("Order processed!");
         } catch (SQLException err) {
             System.out.println(err.getMessage());
         }
     }
 
-    public static void createInstances(String action, int manager_id) {
+    public static void createInstances(String action, int manager_id, Object userObject, int orderMethod) {
         Product productModel = retrieveProduct();
         ProductView productView = new ProductView();
         ProductController productController = new ProductController(productModel, productView);
@@ -425,8 +454,8 @@ public class Product {
         } else if (action == "delete") {
             productController.deleteProduct();
             productController.showProductDeleteAction();
-        } else if (action == "update") {
-            productController.updateProduct(productController, manager_id);
+        } else if (action == "update" || action == "buy") {
+            productController.chooseProductAction(productController, manager_id, userObject, orderMethod);
         }
     }
 

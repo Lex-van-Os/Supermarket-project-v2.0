@@ -66,64 +66,26 @@ public class testProduct {
     }
 
     public static void main(String[] args) {
-        setArray();
+//        setArray();
+        Manager manager = new Manager();
+        int totalSalary = 1249;
+        int reduction = 249;
+        int addition = 12;
+
+        totalSalary = totalSalary - reduction + addition;
+        System.out.println(totalSalary);
+        Employee employee = new Employee();
+
+        testFunction(manager);
     }
-//
-//    public void setNumber(int number) {
-//        this.number = number;
-//    }
 
-//    public testProduct(int num, boolean orderToken) {
-//        if (orderToken) {
-//            number = num;
-//            System.out.println("testProduct constructor called..number is.." + number);
-//        }
-//    }
-
-//    public static void setArray() {
-//        testProduct[] products = new testProduct[10];
-//        for(int i=0; i<products.length; i++){
-//            products[i] = new testProduct();//this will call constructor.
-//            products[i].setNumber(i+1);
-//        }
-//        System.out.println(products[0].number);
-//    }
-
-    public static void setArray() {
-        HashMap<Integer, testProduct> products = new HashMap<Integer, testProduct>();
-//        testProduct yetAnotherTest = new testProduct();
-
-        products.put(4, new testProduct.Builder(4)
-                .productName("Banaan")
-                .productPrice(511.95)
-                .productInStock(51)
-                .productAmount("200g")
-                .productNumber(2)
-                .build());
-
-        products.put(32, new testProduct.Builder(32)
-                .productName("Appel")
-                .productPrice(21.31)
-                .productInStock(21)
-                .productAmount("500g")
-                .productNumber(59)
-                .build());
-
-        for (int i : products.keySet()) {
-            System.out.println(products.get(i).product_name);
-            testProduct quatro = products.get(i);
-//            System.out.println(quatro.product_name);
+    public static void testFunction(Object object) {
+        if (object instanceof Manager) {
+            System.out.println("1");
+            System.out.println(((Manager) object).manager_id);
+        } else if (object instanceof Employee) {
+            System.out.println("2");
+            System.out.println(((Employee) object).employee_id);
         }
-
-//        products.add(1, new testProduct.Builder(32)
-//                .productName("Appel")
-//                .productPrice(21.31)
-//                .productInStock(21)
-//                .productAmount("500g")
-//                .productNumber(59)
-//                .build());
-
-//        products[i].setNumber(i + 1);
-//        System.out.println(products[0].number);
     }
 }

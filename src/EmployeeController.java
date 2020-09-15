@@ -94,6 +94,8 @@ public class EmployeeController {
     }
 
     public void chooseEmployeeAction(Employee employee) {
+        // The chooseEmployeeAction method will show a list of available functions
+        // The shown methods are based on the CRUD the user has choosen to perform as well as the employee privilege level
         Scanner employeeInsertScanner = new Scanner(System.in);
         int employeeInsertInput = employeeInsertScanner.nextInt();
         int manager_id = model.getManager_id();
@@ -137,6 +139,8 @@ public class EmployeeController {
     public void updateEmployee() {
         model.updateEmployeeFindValue();
     }
+
+    // Methods for viewing information
 
     public void showEmployeeInsertAction() {
         view.viewEmployeeInsertAction(model.getFirst_name());

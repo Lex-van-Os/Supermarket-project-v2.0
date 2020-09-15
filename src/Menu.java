@@ -1,8 +1,14 @@
 import java.util.Scanner;
 
+// The menu is the main class as well as the class that the user should run when he wants to run the program
+// The program will firstly ask for the role the user wants to use, two of these are work in progress
+// After doing this, the program will run the instanceFinder to check if an instance already exists
+// If not, it will prompt the user to create one. If one does exist, the user will be given the list of possible methods
+
 public class Menu {
 
     public static void main(String[] args) {
+        // Function that asks for the function
         InstanceFinder marketInstanceFinder = new InstanceFinder();
         marketInstanceFinder.findInstance("supermarket", "name");
 
@@ -27,6 +33,8 @@ public class Menu {
             if (startingInput == 2) {
 //                Manager.createManager();
             }
+
+        // Calling instanceFinder based on given role
         } else if (functionInput == 2) {
             InstanceFinder managerInstanceFinder = new InstanceFinder();
             managerInstanceFinder.findInstance("manager", "first_name");
@@ -39,20 +47,8 @@ public class Menu {
         }
     }
 
-    static void showManagerActions() {
-        System.out.println("What would you like to do as a manager?");
-        System.out.println("1. Hire an employee");
-        System.out.println("2. Fire an employee");
-
-        Scanner managerActionScanner = new Scanner(System.in);
-        int managerActionInput = managerActionScanner.nextInt();
-
-        if (managerActionInput == 1) {
-
-        }
-    }
-
     static void selectCreateInstance(String instance, int userInstance) {
+        // Method for asking for the possible methods and actions
         if (instance == "god") {
             System.out.println("This function is work in progress");
         }
@@ -97,6 +93,9 @@ public class Menu {
         int defaultUserInstance = 0;
         selectCreateInstance(instance, defaultUserInstance);
     }
+
+    // Methods for creating an employee / manager / supermarket.
+    // These might get split up later or moved to their corresponding classes
 
     static void createEmployee(EmployeeController controller) {
         System.out.println("Please enter the supermarket, department, position, first name, last name, age, gender, budget and parttime for your employee: ");

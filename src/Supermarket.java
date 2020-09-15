@@ -44,7 +44,7 @@ public class Supermarket {
         return column_name;
     }
 
-    public void updateSupermarketFindValue(Manager manager) {
+    public void updateSupermarketFindValue() {
 
         try {
             DBConnect connectionTester = new DBConnect();
@@ -131,6 +131,8 @@ public class Supermarket {
     }
 
     public void deleteSupermarket(Manager manager) {
+        // Deleting a supermarket requires the user to remove or unassign all known instances
+        // Because of this, multiple queries are involved in this method
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -143,9 +145,6 @@ public class Supermarket {
             String confirmation = inputGetter.nextLine();
 
             if (confirmation.charAt(0) == 'y') {
-                System.out.println(manager.supermarket_id);
-                System.out.println(manager.first_name);
-                System.out.println(manager.last_name);
 
                 ColumnGetter positionGetter = new ColumnGetter();
                 positionGetter.getColumn("manager", "first_name");
@@ -174,13 +173,11 @@ public class Supermarket {
 
                 PreparedStatement preparedStmtEmployee = connectionTester.connection.prepareStatement(sqlEmployee);
                 preparedStmtEmployee.setInt(1, manager_id);
-                System.out.println(preparedStmtEmployee);
                 preparedStmtEmployee.execute();
                 System.out.println("All employees deleted succesfully!");
 
                 PreparedStatement preparedStmtSupermarket = connectionTester.connection.prepareStatement(sqlSupermarketDelete);
                 preparedStmtSupermarket.setInt(1, manager_id);
-                System.out.println(preparedStmtSupermarket);
                 preparedStmtSupermarket.execute();
                 connectionTester.connection.close();
             } else {
@@ -227,7 +224,7 @@ public class Supermarket {
         }
 
         else if(action == "update") {
-            supermarketController.updateSupermarket(managerModel);
+            supermarketController.updateSupermarket();
             supermarketController.showSupermarketUpdateAction();
         }
     }

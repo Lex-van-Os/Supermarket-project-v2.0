@@ -42,7 +42,6 @@ public class Position {
             preparedStmt.setString(1, position.position_name);
 
             preparedStmt.execute();
-
             connectionTester.connection.close();
 
         } catch (SQLException err) {
@@ -129,19 +128,16 @@ public class Position {
             Scanner inputGetter = new Scanner(System.in);
             inputName = inputName.replace("'", "");
 
-
             String sql = " update department set " + outputName + " = ? where " + outputName + " = ?";
             PreparedStatement prpStmt = connectionTester.connection.prepareStatement(sql);
 
             if (outputType == "VARCHAR") {
-                System.out.println("VARCHAR");
                 String input_value = inputGetter.nextLine();
                 prpStmt.setString(1, input_value);
                 prpStmt.setString(2, inputName);
                 System.out.println("You're about to update " + inputName + " to " + input_value + ". Are you sure you wish to proceed?");
             }
             else if (outputType == "INT") {
-                System.out.println("INT");
                 int input_value = inputGetter.nextInt();
                 prpStmt.setInt(1, input_value);
                 prpStmt.setString(2, inputName);

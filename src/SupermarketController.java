@@ -27,8 +27,8 @@ public class SupermarketController {
         model.deleteSupermarket(managerModel);
     }
 
-    public void updateSupermarket(Manager managerModel) {
-        model.updateSupermarketFindValue(managerModel);
+    public void updateSupermarket() {
+        model.updateSupermarketFindValue();
     }
 
     public void showSupermarketInsertAction() {

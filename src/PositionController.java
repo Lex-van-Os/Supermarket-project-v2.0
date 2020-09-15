@@ -12,10 +12,6 @@ public class PositionController {
         model.setPosition_name(position_name);
     }
 
-    public String getPosition_name() {
-        return model.getPosition_name();
-    }
-
     public void createPositionDBInstance() {
         model.createDBInstance(model);
     }

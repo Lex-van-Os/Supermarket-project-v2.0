@@ -56,13 +56,6 @@ public class Manager {
         this.manager_id = manager_id;
     }
 
-    public void getManager_id() {
-        DBConnect connectionTester = new DBConnect();
-        connectionTester.testConnection();
-
-
-    }
-
     public void setColumn_name(String column_name) {
         this.column_name = column_name;
     }
@@ -90,8 +83,6 @@ public class Manager {
                 manager.setBudget(result.getDouble("budget"));
                 manager.setGross_salary(result.getDouble("gross_salary"));
                 manager.setSupermarket_id(result.getInt("supermarket_idsupermarket"));
-                System.out.println("Supermarket Manager id in getManager");
-                System.out.println(manager.manager_id);
             }
 
         } catch (SQLException err) {
@@ -126,7 +117,6 @@ public class Manager {
     }
 
     public double getSupermarketInstance(Manager manager) {
-        System.out.println("getSupermarketInstance");
         double supermarket_budget = 0;
         try {
             DBConnect connectionTester = new DBConnect();
@@ -153,7 +143,7 @@ public class Manager {
     }
 
     public void getEmployeeInstances(Manager manager, double supermarket_budget) {
-        System.out.println("getEmployeeInstances");
+        // Method for getting all employees for the payout employees method
         HashMap<Integer, Employee> employees = new HashMap<Integer, Employee>();
         try {
             DBConnect connectionTester = new DBConnect();
@@ -162,7 +152,6 @@ public class Manager {
             String sql = "select * from employee where supermarket_idsupermarket = ?";
 
             PreparedStatement preparedStmt = connectionTester.connection.prepareStatement(sql);
-            System.out.println(manager.supermarket_id);
             preparedStmt.setInt(1, manager.supermarket_id);
 
             ResultSet employeeResult = preparedStmt.executeQuery();
@@ -173,7 +162,6 @@ public class Manager {
                 employee.setBudget(employeeResult.getDouble("budget"));
                 employee.setNet_salary(employeeResult.getDouble("net_salary"));
                 employee.setGross_salary(employeeResult.getDouble("gross_salary"));
-                System.out.println(employee.employee_id);
                 employees.put(employee.employee_id, employee);
             }
 
@@ -187,7 +175,9 @@ public class Manager {
     }
 
     public void payoutEmployees(HashMap<Integer, Employee> employees, Manager manager, double supermarket_budget) {
-        System.out.println("payoutEmployees");
+        // The paypout employee method. This method will payout all employees and can only be called by the manager
+        // The calculations are done by giving employees their net salary and removing the total from the supermarket budget
+        // Next to this calculation, the leftover salary from the gross_salary will be added to the supermarket budget
         try {
             double grossAmount = 0;
             double salarySpendings = 0;
@@ -205,14 +195,8 @@ public class Manager {
                 preparedStmtEmployee.execute();
                 grossAmount = grossAmount + employees.get(employee_id).gross_salary - employees.get(employee_id).net_salary;
                 salarySpendings = salarySpendings + employees.get(employee_id).net_salary;
-                System.out.println(employees.get(employee_id).employee_id);
-                System.out.println(new_budget);
-                System.out.println(grossAmount);
             }
 
-            System.out.println("Supermarket budget: ");
-            System.out.println(supermarket_budget);
-            System.out.println(supermarket_budget + grossAmount);
             PreparedStatement preparedStmtSupermarket = connectionTester.connection.prepareStatement(supermarketSql);
             preparedStmtSupermarket.setDouble(1, supermarket_budget - salarySpendings + grossAmount);
             preparedStmtSupermarket.setInt(2, manager.supermarket_id);

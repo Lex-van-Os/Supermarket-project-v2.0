@@ -46,6 +46,7 @@ public class ManagerController {
     }
 
     public void chooseManagerActionType(int userInstance, Manager manager) {
+        // Since a manager has alot of functionality, the method for printing possible functions is split up in three
         Scanner managerActionTypeScanner = new Scanner(System.in);
         int managerActionTypeInput = managerActionTypeScanner.nextInt();
 
@@ -64,6 +65,11 @@ public class ManagerController {
             }
         }
     }
+    
+    // The three different methods for showing the possible methods, are split up in three
+    // Most of the options, will call the corresponding class with the action as parameter
+    // Most of the time, the method called is an "intersection" type function
+    // These methods will call the correct method based on the action given
 
     public void chooseManagerInsertAction(int userInstance, Manager manager) {
         Scanner managerInsertScanner = new Scanner(System.in);
@@ -140,10 +146,6 @@ public class ManagerController {
 
     public Manager getManager(int userInstance, ManagerController controller) {
         return model.getManager(userInstance);
-    }
-
-    public void showManagerInsertAction() {
-        view.viewManagerInsertAction(model.getFirst_name());
     }
 
     public void showManagerDeleteAction() {

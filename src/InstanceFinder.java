@@ -6,10 +6,21 @@ import com.mysql.cj.protocol.Resultset;
         import java.util.ArrayList;
         import java.util.Scanner;
 
+// The instanceFinder is used to check if an instance of a database instance exists.
+// This, for example, is used to check if a supermarket exists when running the program.
+// Once checked, the program will prompt the user with options based on if an instance exists.
+
+// If an instance already exists, the program will run the chooseInstance method.
+// This method lets the user choose an instance based around the function the user chooses to run the program as
+// This information is used to prompt the user with methods based around the chosen function and instance
+
+// If an instance does not exist, the program will ask if you would like to create a new one
+
 public class InstanceFinder {
     ArrayList<Integer> instances = new ArrayList<Integer>();
 
     public void findInstance(String instance, String instanceName) {
+        // Method for finding the instance
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -26,9 +37,7 @@ public class InstanceFinder {
                 System.out.println(instanceString + " found!");
                 String instanceInput = "id" + instanceSql;
                 instanceInput = instanceInput.replace("\"", "");
-                Integer instanceId = result.getInt(instanceInput);
                 instanceName = instanceName.replace("\"", "");
-                String instanceNameResult = result.getString(instanceName);
                 if (instance != "supermarket") {
                     Scanner chooseInstance = new Scanner(System.in);
                     boolean breakWhile = false;
@@ -39,7 +48,6 @@ public class InstanceFinder {
                             breakWhile = true;
                             chooseInstance(sql, instance, instanceInput, instanceName);
                         } else if (instanceConfirmation.charAt(0) == 'n') {
-                            System.out.println(instanceConfirmation);
                             break;
                         } else {
                             System.out.println("No valid input");
@@ -57,6 +65,7 @@ public class InstanceFinder {
     }
 
     public void chooseInstance(String sql, String instance, String instanceInput, String instanceName) {
+        //Method for choosing the instance
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -85,6 +94,7 @@ public class InstanceFinder {
     }
 
     public void createInstance(String instance) {
+        //Method for creating an instance
         System.out.println("No " + instance + " detected, would you like to create one?");
         Scanner instanceGetter = new Scanner(System.in);
         boolean breakWhile = false;

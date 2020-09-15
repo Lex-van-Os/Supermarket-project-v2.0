@@ -114,6 +114,9 @@ public class Employee {
 
     public int getManager_id() {
         int manager_id = 0;
+        // This method returns the manager id based on two pieces of information
+        // 1. The supermarket id the user works for
+        // 2. The corresponding manager to that supermarket
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -129,75 +132,6 @@ public class Employee {
             System.out.println(err.getMessage());
         }
         return manager_id;
-    }
-
-    static int chooseDepartment() {
-        Scanner input = new Scanner(System.in);
-        String input_department = input.nextLine();
-        input_department = input_department.replace(input_department, "\"" + input_department + "\"");
-        System.out.println(input_department);
-        int department_id;
-
-        try {
-            String host = "jdbc:mysql://localhost:3306/supermarket?serverTimezone=UTC";
-            String uName = "root";
-            String uPass = "ytj?yctcsrpvw";
-            Connection con = DriverManager.getConnection(host, uName, uPass);
-            System.out.println("Preparing to fetch department");
-
-            Statement statement = con.createStatement();
-
-            String sql = ("select iddepartment from department where department_name = " + input_department);
-            ResultSet result = statement.executeQuery(sql);
-
-            if (result.next()) {
-                department_id = result.getInt("iddepartment");
-            } else {
-                department_id = 0;
-            }
-
-        } catch (SQLException err) {
-            department_id = 0;
-            System.out.println(err.getMessage());
-        }
-
-        return department_id;
-    }
-
-    static int choosePosition() {
-        System.out.println("Please choose the position you'd like to give your new employee");
-        Scanner input = new Scanner(System.in);
-        String input_position = input.nextLine();
-        input_position = input_position.replace(input_position, "\"" + input_position + "\"");
-        System.out.println(input_position);
-        int position_id;
-
-        try {
-            String host = "jdbc:mysql://localhost:3306/supermarket?serverTimezone=UTC";
-            String uName = "root";
-            String uPass = "ytj?yctcsrpvw";
-            Connection con = DriverManager.getConnection(host, uName, uPass);
-
-            Statement statement = con.createStatement();
-
-            String sql = ("select idposition from position where position_name = " + input_position);
-            System.out.println(input_position);
-            System.out.println(sql);
-            ResultSet result = statement.executeQuery(sql);
-
-            if (result.next()) {
-                position_id = result.getInt("idposition");
-            } else {
-                position_id = 0;
-            }
-
-        } catch (SQLException err) {
-            position_id = 0;
-            System.out.println(err.getMessage());
-        }
-
-        System.out.println(position_id);
-        return position_id;
     }
 
     public void calculateNetSalary(double gross_salary) {
@@ -255,7 +189,7 @@ public class Employee {
 
     public void updateMyEmployeeValue(Employee employee) {
         try {
-            System.out.println("The updatemyvalue function");
+            // Update method called by employee to update own information
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
 
@@ -268,7 +202,6 @@ public class Employee {
 
             Statement stmt = connectionTester.connection.createStatement();
 
-            System.out.println(sql);
             ResultSet result = stmt.executeQuery(sql);
             ResultSetMetaData resultSetMetaData = result.getMetaData();
 
@@ -283,6 +216,8 @@ public class Employee {
 
     public void updateEmployeeFindValue() {
         try {
+            // Update called by manager to change an employee's information
+            // Before updating, the manager must choose an employee, this is the corresponding method
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
 
@@ -317,6 +252,8 @@ public class Employee {
 
     public void updateEmployeeValue(String outputValue, int outputId, String outputType) {
         try {
+            // After choosing an instance, the instance will be updated
+            // A switch is included to handle the different data types of columns that can be updated
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
 
@@ -388,8 +325,6 @@ public class Employee {
                 employee.setPosition_id(result.getInt("position_idposition"));
                 employee.setSupermarket_id(result.getInt("supermarket_idsupermarket"));
                 employee.setPrivileges(employee.position_id);
-                System.out.println("Supermarket Manager id in getManager");
-                System.out.println(employee.employee_id);
             }
 
         } catch (SQLException err) {
@@ -399,6 +334,8 @@ public class Employee {
     }
 
     public void setPrivileges(int idposition) {
+        // Setting the privileges of an employee based on his function
+        // Privileges is a column in the position table, the position id is included in the employee table
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -412,8 +349,7 @@ public class Employee {
             ResultSet result = preparedStmt.executeQuery();
 
             if (result.next()) {
-                int privileges = result.getInt("privileges");
-                this.privileges = privileges;
+                this.privileges = result.getInt("privileges");
             }
 
         } catch (SQLException err) {
@@ -422,6 +358,8 @@ public class Employee {
     }
 
     public void deleteEmployee(boolean managerDelete, Employee employee) {
+        // This method has two different ways of executing based on the action given
+        // The method can be called by a manager to delete an employee, also by an employee to resign
         try {
             DBConnect connectionTester = new DBConnect();
             connectionTester.testConnection();
@@ -473,6 +411,7 @@ public class Employee {
     }
 
     public static void createInstances(String action) {
+        // Method for handling employee actions with string type parameters.
         Employee employeeModel = new Employee();
         EmployeeView employeeView = new EmployeeView();
         EmployeeController employeeController = new EmployeeController(employeeModel, employeeView);
